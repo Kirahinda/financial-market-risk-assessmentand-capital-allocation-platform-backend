@@ -2,7 +2,10 @@ package com.ytfa.fmrcap.controller;
 
 import com.ytfa.fmrcap.entity.CapitalAllocation;
 import com.ytfa.fmrcap.service.CapitalAllocationService;
+
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,20 +25,14 @@ public class CapitalAllocationController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> save(
-            @RequestBody CapitalAllocation allocation) {
+    public ResponseEntity<CapitalAllocation> save(
+            @Valid @RequestBody CapitalAllocation allocation) {
 
-        try {
-            CapitalAllocation savedAllocation =
-                    capitalAllocationService.save(allocation);
+        CapitalAllocation savedAllocation =
+                capitalAllocationService.save(allocation);
 
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(savedAllocation);
-
-        } catch (EntityNotFoundException | IllegalArgumentException exception) {
-            return ResponseEntity.badRequest()
-                    .body(exception.getMessage());
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(savedAllocation);
     }
 
     @GetMapping("/all")
@@ -44,45 +41,44 @@ public class CapitalAllocationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable UUID id) {
-        return capitalAllocationService.findById(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("The capital allocation with that ID does not exist"));
+    public ResponseEntity<CapitalAllocation> findById(
+            @PathVariable UUID id) {
+
+        CapitalAllocation allocation =
+                capitalAllocationService.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException(
+                                "The capital allocation with that ID does not exist"));
+
+        return ResponseEntity.ok(allocation);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(
+    public ResponseEntity<CapitalAllocation> update(
             @PathVariable UUID id,
-            @RequestBody CapitalAllocation allocation) {
+            @Valid @RequestBody CapitalAllocation allocation) {
 
         if (!capitalAllocationService.existsById(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("The capital allocation with that ID does not exist");
+            throw new EntityNotFoundException(
+                    "The capital allocation with that ID does not exist");
         }
 
-        try {
-            CapitalAllocation updatedAllocation =
-                    capitalAllocationService.update(id, allocation);
+        CapitalAllocation updatedAllocation =
+                capitalAllocationService.update(id, allocation);
 
-            return ResponseEntity.ok(updatedAllocation);
-
-        } catch (EntityNotFoundException | IllegalArgumentException exception) {
-            return ResponseEntity.badRequest()
-                    .body(exception.getMessage());
-        }
+        return ResponseEntity.ok(updatedAllocation);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable UUID id) {
 
         if (!capitalAllocationService.existsById(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("The capital allocation with that ID does not exist");
+            throw new EntityNotFoundException(
+                    "The capital allocation with that ID does not exist");
         }
 
         capitalAllocationService.deleteById(id);
 
-        return ResponseEntity.ok("Capital allocation deleted successfully");
+        return ResponseEntity.ok(
+                "Capital allocation deleted successfully");
     }
 }

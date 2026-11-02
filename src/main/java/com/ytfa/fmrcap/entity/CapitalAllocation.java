@@ -8,6 +8,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -19,14 +24,19 @@ public class CapitalAllocation {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NotBlank(message = "Instrument name is required")
     private String instrumentName;
 
     private String rationale;
 
+    @Min(value = 1, message = "Allocation must be at least 1%")
+    @Max(value = 100, message = "Allocation cannot exceed 100%")
     private int allocatedPercent;
 
+    @NotNull(message = "Allocation date is required")
     private LocalDate allocationDate;
 
+    @NotNull(message = "Risk assessment is required")
     @ManyToOne
     @JoinColumn(name = "risk_assessment_id")
     private RiskAssessment riskAssessment;
