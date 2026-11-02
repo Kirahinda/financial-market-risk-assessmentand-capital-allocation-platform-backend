@@ -1,10 +1,12 @@
 package com.ytfa.fmrcap.repository;
 
 import com.ytfa.fmrcap.entity.CapitalAllocation;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public interface CapitalAllocationRepository
@@ -16,7 +18,7 @@ public interface CapitalAllocationRepository
             WHERE c.riskAssessment.id = :assessmentId
             AND (:allocationId IS NULL OR c.id <> :allocationId)
             """)
-    Long sumAllocatedPercent(
+    BigDecimal sumAllocatedPercent(
             @Param("assessmentId") UUID assessmentId,
             @Param("allocationId") UUID allocationId);
 

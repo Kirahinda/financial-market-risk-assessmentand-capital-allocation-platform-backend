@@ -7,12 +7,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.DecimalMax;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -29,9 +31,13 @@ public class CapitalAllocation {
 
     private String rationale;
 
-    @Min(value = 1, message = "Allocation must be at least 1%")
-    @Max(value = 100, message = "Allocation cannot exceed 100%")
-    private int allocatedPercent;
+    @NotNull(message = "Allocation percentage is required")
+    @DecimalMin(value = "0.01",
+            message = "Allocation must be at least 0.01%")
+    @DecimalMax(value = "100.00",
+            message = "Allocation cannot exceed 100%")
+    @Column(precision = 5, scale = 2)
+    private BigDecimal allocatedPercent;
 
     @NotNull(message = "Allocation date is required")
     private LocalDate allocationDate;
@@ -68,11 +74,11 @@ public class CapitalAllocation {
         this.rationale = rationale;
     }
 
-    public int getAllocatedPercent() {
+    public BigDecimal getAllocatedPercent() {
         return allocatedPercent;
     }
 
-    public void setAllocatedPercent(int allocatedPercent) {
+    public void setAllocatedPercent(BigDecimal allocatedPercent) {
         this.allocatedPercent = allocatedPercent;
     }
 

@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,7 +31,6 @@ public class CapitalAllocationService {
 
     @Transactional
     public CapitalAllocation save(CapitalAllocation allocation) {
-
         resolveRiskAssessment(allocation);
         validateAllocation(allocation, null);
 
@@ -100,23 +100,28 @@ public class CapitalAllocationService {
             CapitalAllocation allocation,
             UUID allocationId) {
 
-        int percentage = allocation.getAllocatedPercent();
+        BigDecimal percentage = allocation.getAllocatedPercent();
 
-        if (percentage < 1 || percentage > 100) {
+        if (percentage == null
+                || percentage.compareTo(new BigDecimal("0.01")) < 0
+                || percentage.compareTo(new BigDecimal("100.00")) > 0) {
+
             throw new IllegalArgumentException(
-                    "Allocation percentage must be between 1 and 100");
+                    "Allocation percentage must be between 0.01 and 100.00");
         }
 
         UUID assessmentId = allocation.getRiskAssessment().getId();
 
-        Long existingTotal =
+        BigDecimal existingTotal =
                 capitalAllocationRepository.sumAllocatedPercent(
                         assessmentId, allocationId);
 
-        long total = (existingTotal == null ? 0L : existingTotal)
-                + percentage;
+        BigDecimal total = (existingTotal == null
+                ? BigDecimal.ZERO
+                : existingTotal).add(percentage);
 
-        if (total > 100) {
+        if (total.compareTo(new BigDecimal("100.00")) > 0) {
+
             throw new IllegalArgumentException(
                     "Total capital allocation cannot exceed 100%. "
                             + "Current total after this operation would be "
