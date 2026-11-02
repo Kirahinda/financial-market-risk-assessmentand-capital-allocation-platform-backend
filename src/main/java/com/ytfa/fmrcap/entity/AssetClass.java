@@ -6,9 +6,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
 import java.util.UUID;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "asset_class")
@@ -18,6 +20,7 @@ public class AssetClass {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NotBlank(message = "Asset class name is required")
     private String name;
 
     @ManyToMany(mappedBy = "assetClasses")
@@ -51,4 +54,3 @@ public class AssetClass {
         this.riskAnalysts = riskAnalysts;
     }
 }
-

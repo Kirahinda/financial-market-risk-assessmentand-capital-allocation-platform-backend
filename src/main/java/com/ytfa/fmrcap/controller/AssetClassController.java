@@ -2,6 +2,10 @@ package com.ytfa.fmrcap.controller;
 
 import com.ytfa.fmrcap.entity.AssetClass;
 import com.ytfa.fmrcap.service.AssetClassService;
+
+import jakarta.validation.Valid;
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +24,14 @@ public class AssetClassController {
     }
 
     @PostMapping("/save")
-public ResponseEntity<String> save(@RequestBody AssetClass assetClass) {
-    assetClassService.save(assetClass);
+    public ResponseEntity<String> save(
+            @Valid @RequestBody AssetClass assetClass) {
 
-    return ResponseEntity.status(HttpStatus.CREATED)
-            .body("Asset class saved successfully");
-}
+        assetClassService.save(assetClass);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Asset class saved successfully");
+    }
 
     @GetMapping("/all")
     public ResponseEntity<List<AssetClass>> findAll() {
@@ -33,41 +39,43 @@ public ResponseEntity<String> save(@RequestBody AssetClass assetClass) {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable UUID id) {
-        return assetClassService.findById(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("The asset class with that id does not exist"));
+    public ResponseEntity<AssetClass> findById(
+            @PathVariable UUID id) {
+
+        AssetClass assetClass = assetClassService.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "The asset class with that id does not exist"));
+
+        return ResponseEntity.ok(assetClass);
     }
 
-
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> update(
+    public ResponseEntity<String> update(
             @PathVariable UUID id,
-            @RequestBody AssetClass assetClass) {
+            @Valid @RequestBody AssetClass assetClass) {
 
         if (!assetClassService.existsById(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("The asset class with that id does not exist");
+            throw new EntityNotFoundException(
+                    "The asset class with that id does not exist");
         }
 
         assetClass.setId(id);
-assetClassService.save(assetClass);
+        assetClassService.save(assetClass);
 
-return ResponseEntity.ok("Asset class updated successfully");
+        return ResponseEntity.ok("Asset class updated successfully");
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable UUID id) {
+    public ResponseEntity<String> delete(
+            @PathVariable UUID id) {
 
         if (!assetClassService.existsById(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("The asset class with that id does not exist");
+            throw new EntityNotFoundException(
+                    "The asset class with that id does not exist");
         }
 
         assetClassService.deleteById(id);
 
         return ResponseEntity.ok("Asset class deleted successfully");
     }
-
 }
