@@ -1,11 +1,12 @@
-
 package com.ytfa.fmrcap.service;
 
 import com.ytfa.fmrcap.entity.CapitalAllocation;
 import com.ytfa.fmrcap.entity.RiskAssessment;
 import com.ytfa.fmrcap.repository.CapitalAllocationRepository;
 import com.ytfa.fmrcap.repository.RiskAssessmentRepository;
+
 import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +52,11 @@ public class CapitalAllocationService {
     @Transactional
     public CapitalAllocation update(UUID id, CapitalAllocation allocation) {
 
+        if (!capitalAllocationRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Capital allocation not found: " + id);
+        }
+
         allocation.setId(id);
 
         resolveRiskAssessment(allocation);
@@ -59,14 +65,23 @@ public class CapitalAllocationService {
         return capitalAllocationRepository.save(allocation);
     }
 
+    @Transactional
     public void deleteById(UUID id) {
+
+        if (!capitalAllocationRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Capital allocation not found: " + id);
+        }
+
         capitalAllocationRepository.deleteById(id);
     }
 
     private void resolveRiskAssessment(CapitalAllocation allocation) {
 
-        if (allocation.getRiskAssessment() == null
+        if (allocation == null
+                || allocation.getRiskAssessment() == null
                 || allocation.getRiskAssessment().getId() == null) {
+
             throw new IllegalArgumentException(
                     "A valid risk assessment ID is required");
         }
