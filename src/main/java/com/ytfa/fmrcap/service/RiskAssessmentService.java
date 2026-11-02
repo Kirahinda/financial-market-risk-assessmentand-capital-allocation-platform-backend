@@ -3,10 +3,16 @@ package com.ytfa.fmrcap.service;
 import com.ytfa.fmrcap.entity.Investor;
 import com.ytfa.fmrcap.entity.RiskAnalyst;
 import com.ytfa.fmrcap.entity.RiskAssessment;
+
+import com.ytfa.fmrcap.exception.ResourceConflictException;
+
 import com.ytfa.fmrcap.repository.InvestorRepository;
 import com.ytfa.fmrcap.repository.RiskAnalystRepository;
 import com.ytfa.fmrcap.repository.RiskAssessmentRepository;
+import com.ytfa.fmrcap.repository.CapitalAllocationRepository;
+
 import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,15 +25,18 @@ public class RiskAssessmentService {
     private final RiskAssessmentRepository riskAssessmentRepository;
     private final InvestorRepository investorRepository;
     private final RiskAnalystRepository riskAnalystRepository;
+    private final CapitalAllocationRepository capitalAllocationRepository;
 
     public RiskAssessmentService(
             RiskAssessmentRepository riskAssessmentRepository,
             InvestorRepository investorRepository,
-            RiskAnalystRepository riskAnalystRepository) {
+            RiskAnalystRepository riskAnalystRepository,
+            CapitalAllocationRepository capitalAllocationRepository) {
 
         this.riskAssessmentRepository = riskAssessmentRepository;
         this.investorRepository = investorRepository;
         this.riskAnalystRepository = riskAnalystRepository;
+        this.capitalAllocationRepository = capitalAllocationRepository;
     }
 
     public RiskAssessment save(RiskAssessment assessment) {
@@ -70,6 +79,15 @@ public class RiskAssessmentService {
         if (!riskAssessmentRepository.existsById(id)) {
             throw new EntityNotFoundException(
                     "Risk assessment not found: " + id);
+        }
+
+        if (capitalAllocationRepository
+                .existsByRiskAssessment_Id(id)) {
+
+            throw new ResourceConflictException(
+                    "Cannot delete this risk assessment because "
+                    + "it has existing capital allocations. "
+                    + "Remove or reassign those allocations first.");
         }
 
         riskAssessmentRepository.deleteById(id);

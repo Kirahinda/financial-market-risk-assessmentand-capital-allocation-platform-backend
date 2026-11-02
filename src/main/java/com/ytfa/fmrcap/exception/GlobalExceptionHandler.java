@@ -85,7 +85,20 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // Handles duplicate records and database integrity conflicts
+    // Handles application resource conflicts
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<ApiErrorResponse> handleResourceConflict(
+            ResourceConflictException exception,
+            HttpServletRequest request) {
+
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage(),
+                request
+        );
+    }
+
+    // Handles database integrity conflicts
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleDatabaseConflict(
             DataIntegrityViolationException exception,

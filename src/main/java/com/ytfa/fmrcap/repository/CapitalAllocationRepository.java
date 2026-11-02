@@ -19,4 +19,6 @@ public interface CapitalAllocationRepository
     Long sumAllocatedPercent(
             @Param("assessmentId") UUID assessmentId,
             @Param("allocationId") UUID allocationId);
+
+    boolean existsByRiskAssessment_Id(UUID assessmentId);
 }
