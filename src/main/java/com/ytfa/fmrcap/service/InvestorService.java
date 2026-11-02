@@ -32,6 +32,7 @@ public class InvestorService {
         if (investor.getInvestorCode() != null
                 && investorRepository.existsByInvestorCode(
                         investor.getInvestorCode())) {
+
             throw new IllegalArgumentException(
                     "An investor with this investor code already exists");
         }
@@ -53,14 +54,21 @@ public class InvestorService {
 
     public Investor update(UUID id, Investor investor) {
 
+        if (!investorRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Investor not found: " + id);
+        }
+
         if (investor.getInvestorCode() != null
                 && investorRepository.existsByInvestorCodeAndIdNot(
                         investor.getInvestorCode(), id)) {
+
             throw new IllegalArgumentException(
                     "Another investor already uses this investor code");
         }
 
         investor.setId(id);
+
         return investorRepository.save(investor);
     }
 
