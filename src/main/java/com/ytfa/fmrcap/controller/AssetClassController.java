@@ -35,7 +35,9 @@ public class AssetClassController {
 
     @GetMapping("/all")
     public ResponseEntity<List<AssetClass>> findAll() {
-        return ResponseEntity.ok(assetClassService.findAll());
+
+        return ResponseEntity.ok(
+                assetClassService.findAll());
     }
 
     @GetMapping("/{id}")
@@ -54,28 +56,19 @@ public class AssetClassController {
             @PathVariable UUID id,
             @Valid @RequestBody AssetClass assetClass) {
 
-        if (!assetClassService.existsById(id)) {
-            throw new EntityNotFoundException(
-                    "The asset class with that id does not exist");
-        }
+        assetClassService.update(id, assetClass);
 
-        assetClass.setId(id);
-        assetClassService.save(assetClass);
-
-        return ResponseEntity.ok("Asset class updated successfully");
+        return ResponseEntity.ok(
+                "Asset class updated successfully");
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(
             @PathVariable UUID id) {
 
-        if (!assetClassService.existsById(id)) {
-            throw new EntityNotFoundException(
-                    "The asset class with that id does not exist");
-        }
-
         assetClassService.deleteById(id);
 
-        return ResponseEntity.ok("Asset class deleted successfully");
+        return ResponseEntity.ok(
+                "Asset class deleted successfully");
     }
 }

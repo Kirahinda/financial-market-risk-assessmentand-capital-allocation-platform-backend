@@ -8,6 +8,7 @@ import com.ytfa.fmrcap.repository.RiskAnalystRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +28,7 @@ public class AssetClassService {
         this.riskAnalystRepository = riskAnalystRepository;
     }
 
+    @Transactional
     public AssetClass save(AssetClass assetClass) {
         return assetClassRepository.save(assetClass);
     }
@@ -43,6 +45,20 @@ public class AssetClassService {
         return assetClassRepository.existsById(id);
     }
 
+    @Transactional
+    public AssetClass update(UUID id, AssetClass assetClass) {
+
+        if (!assetClassRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Asset class not found: " + id);
+        }
+
+        assetClass.setId(id);
+
+        return assetClassRepository.save(assetClass);
+    }
+
+    @Transactional
     public void deleteById(UUID id) {
 
         if (!assetClassRepository.existsById(id)) {
