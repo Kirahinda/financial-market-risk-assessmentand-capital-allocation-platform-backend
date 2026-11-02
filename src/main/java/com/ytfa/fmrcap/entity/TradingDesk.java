@@ -4,8 +4,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.util.UUID;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "trading_desk")
@@ -15,8 +18,10 @@ public class TradingDesk {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Min(value = 0, message = "Desk number cannot be negative")
     private int deskNumber;
 
+    @NotBlank(message = "Trading desk name is required")
     private String name;
 
     public TradingDesk() {

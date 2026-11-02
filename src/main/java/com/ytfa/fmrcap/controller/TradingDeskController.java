@@ -2,6 +2,8 @@ package com.ytfa.fmrcap.controller;
 
 import com.ytfa.fmrcap.entity.TradingDesk;
 import com.ytfa.fmrcap.service.TradingDeskService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,9 @@ public class TradingDeskController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody TradingDesk tradingDesk) {
+    public ResponseEntity<String> save(
+            @Valid @RequestBody TradingDesk tradingDesk) {
+
         tradingDeskService.save(tradingDesk);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -33,21 +37,23 @@ public class TradingDeskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable UUID id) {
-        return tradingDeskService.findById(id)
-                .<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("The trading desk with that id does not exist"));
+    public ResponseEntity<TradingDesk> findById(@PathVariable UUID id) {
+
+        TradingDesk desk = tradingDeskService.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Trading desk not found: " + id));
+
+        return ResponseEntity.ok(desk);
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<String> update(
             @PathVariable UUID id,
-            @RequestBody TradingDesk tradingDesk) {
+            @Valid @RequestBody TradingDesk tradingDesk) {
 
         if (!tradingDeskService.existsById(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("The trading desk with that id does not exist");
+            throw new EntityNotFoundException(
+                    "Trading desk not found: " + id);
         }
 
         tradingDesk.setId(id);
@@ -60,8 +66,8 @@ public class TradingDeskController {
     public ResponseEntity<String> delete(@PathVariable UUID id) {
 
         if (!tradingDeskService.existsById(id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("The trading desk with that id does not exist");
+            throw new EntityNotFoundException(
+                    "Trading desk not found: " + id);
         }
 
         tradingDeskService.deleteById(id);
