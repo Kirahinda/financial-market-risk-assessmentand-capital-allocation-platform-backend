@@ -9,11 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -35,8 +37,10 @@ public class RiskAssessment {
     @NotBlank(message = "Portfolio name is required")
     private String portfolioName;
 
+    @NotNull(message = "Capital USD is required")
     @Positive(message = "Capital USD must be greater than zero")
-    private double capitalUsd;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal capitalUsd;
 
     @NotNull(message = "Investor is required")
     @ManyToOne
@@ -83,11 +87,11 @@ public class RiskAssessment {
         this.portfolioName = portfolioName;
     }
 
-    public double getCapitalUsd() {
+    public BigDecimal getCapitalUsd() {
         return capitalUsd;
     }
 
-    public void setCapitalUsd(double capitalUsd) {
+    public void setCapitalUsd(BigDecimal capitalUsd) {
         this.capitalUsd = capitalUsd;
     }
 

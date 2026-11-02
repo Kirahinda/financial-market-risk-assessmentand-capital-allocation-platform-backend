@@ -14,7 +14,9 @@ import com.ytfa.fmrcap.repository.CapitalAllocationRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +41,7 @@ public class RiskAssessmentService {
         this.capitalAllocationRepository = capitalAllocationRepository;
     }
 
+    @Transactional
     public RiskAssessment save(RiskAssessment assessment) {
 
         validateAssessment(assessment);
@@ -59,6 +62,7 @@ public class RiskAssessmentService {
         return riskAssessmentRepository.existsById(id);
     }
 
+    @Transactional
     public RiskAssessment update(UUID id, RiskAssessment assessment) {
 
         if (!riskAssessmentRepository.existsById(id)) {
@@ -74,6 +78,7 @@ public class RiskAssessmentService {
         return riskAssessmentRepository.save(assessment);
     }
 
+    @Transactional
     public void deleteById(UUID id) {
 
         if (!riskAssessmentRepository.existsById(id)) {
@@ -111,7 +116,11 @@ public class RiskAssessmentService {
                     "Assessment date is required");
         }
 
-        if (assessment.getCapitalUsd() <= 0) {
+        BigDecimal capitalUsd = assessment.getCapitalUsd();
+
+        if (capitalUsd == null
+                || capitalUsd.compareTo(BigDecimal.ZERO) <= 0) {
+
             throw new IllegalArgumentException(
                     "Assessment capital must be greater than zero");
         }
