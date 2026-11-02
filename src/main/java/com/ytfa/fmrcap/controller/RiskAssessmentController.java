@@ -2,6 +2,9 @@ package com.ytfa.fmrcap.controller;
 
 import com.ytfa.fmrcap.entity.RiskAssessment;
 import com.ytfa.fmrcap.service.RiskAssessmentService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +25,7 @@ public class RiskAssessmentController {
 
     @PostMapping("/save")
     public ResponseEntity<RiskAssessment> save(
-            @RequestBody RiskAssessment assessment) {
+            @Valid @RequestBody RiskAssessment assessment) {
 
         RiskAssessment savedAssessment =
                 riskAssessmentService.save(assessment);
@@ -50,7 +53,7 @@ public class RiskAssessmentController {
     @PutMapping("/update/{id}")
     public ResponseEntity<RiskAssessment> update(
             @PathVariable UUID id,
-            @RequestBody RiskAssessment assessment) {
+            @Valid @RequestBody RiskAssessment assessment) {
 
         RiskAssessment updatedAssessment =
                 riskAssessmentService.update(id, assessment);

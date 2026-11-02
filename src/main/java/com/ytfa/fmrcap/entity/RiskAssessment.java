@@ -10,6 +10,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -21,19 +25,25 @@ public class RiskAssessment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NotNull(message = "Assessment date is required")
     private LocalDate assessmentDate;
 
+    @NotNull(message = "Assessment status is required")
     @Enumerated(EnumType.STRING)
     private AssessmentStatus status;
 
+    @NotBlank(message = "Portfolio name is required")
     private String portfolioName;
 
+    @Positive(message = "Capital USD must be greater than zero")
     private double capitalUsd;
 
+    @NotNull(message = "Investor is required")
     @ManyToOne
     @JoinColumn(name = "investor_id")
     private Investor investor;
 
+    @NotNull(message = "Risk analyst is required")
     @ManyToOne
     @JoinColumn(name = "risk_analyst_id")
     private RiskAnalyst riskAnalyst;
