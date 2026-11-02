@@ -9,4 +9,6 @@ public interface RiskAssessmentRepository
         extends JpaRepository<RiskAssessment, UUID> {
 
     boolean existsByInvestor_Id(UUID investorId);
+
+    boolean existsByRiskAnalyst_Id(UUID analystId);
 }

@@ -3,10 +3,16 @@ package com.ytfa.fmrcap.service;
 import com.ytfa.fmrcap.entity.AssetClass;
 import com.ytfa.fmrcap.entity.RiskAnalyst;
 import com.ytfa.fmrcap.entity.TradingDesk;
+
+import com.ytfa.fmrcap.exception.ResourceConflictException;
+
 import com.ytfa.fmrcap.repository.AssetClassRepository;
 import com.ytfa.fmrcap.repository.RiskAnalystRepository;
+import com.ytfa.fmrcap.repository.RiskAssessmentRepository;
 import com.ytfa.fmrcap.repository.TradingDeskRepository;
+
 import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,15 +26,18 @@ public class RiskAnalystService {
     private final RiskAnalystRepository riskAnalystRepository;
     private final TradingDeskRepository tradingDeskRepository;
     private final AssetClassRepository assetClassRepository;
+    private final RiskAssessmentRepository riskAssessmentRepository;
 
     public RiskAnalystService(
             RiskAnalystRepository riskAnalystRepository,
             TradingDeskRepository tradingDeskRepository,
-            AssetClassRepository assetClassRepository) {
+            AssetClassRepository assetClassRepository,
+            RiskAssessmentRepository riskAssessmentRepository) {
 
         this.riskAnalystRepository = riskAnalystRepository;
         this.tradingDeskRepository = tradingDeskRepository;
         this.assetClassRepository = assetClassRepository;
+        this.riskAssessmentRepository = riskAssessmentRepository;
     }
 
     public RiskAnalyst save(RiskAnalyst riskAnalyst) {
@@ -90,6 +99,20 @@ public class RiskAnalystService {
     }
 
     public void deleteById(UUID id) {
+
+        if (!riskAnalystRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Risk analyst not found: " + id);
+        }
+
+        if (riskAssessmentRepository.existsByRiskAnalyst_Id(id)) {
+
+            throw new ResourceConflictException(
+                    "Cannot delete this risk analyst because "
+                    + "existing risk assessments are assigned to this analyst. "
+                    + "Reassign or remove those assessments first.");
+        }
+
         riskAnalystRepository.deleteById(id);
     }
 }
