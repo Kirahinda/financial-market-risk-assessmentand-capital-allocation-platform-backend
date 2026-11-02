@@ -2,8 +2,10 @@ package com.ytfa.fmrcap.controller;
 
 import com.ytfa.fmrcap.entity.TradingDesk;
 import com.ytfa.fmrcap.service.TradingDeskService;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,11 +35,14 @@ public class TradingDeskController {
 
     @GetMapping("/all")
     public ResponseEntity<List<TradingDesk>> findAll() {
-        return ResponseEntity.ok(tradingDeskService.findAll());
+
+        return ResponseEntity.ok(
+                tradingDeskService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TradingDesk> findById(@PathVariable UUID id) {
+    public ResponseEntity<TradingDesk> findById(
+            @PathVariable UUID id) {
 
         TradingDesk desk = tradingDeskService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -51,27 +56,19 @@ public class TradingDeskController {
             @PathVariable UUID id,
             @Valid @RequestBody TradingDesk tradingDesk) {
 
-        if (!tradingDeskService.existsById(id)) {
-            throw new EntityNotFoundException(
-                    "Trading desk not found: " + id);
-        }
+        tradingDeskService.update(id, tradingDesk);
 
-        tradingDesk.setId(id);
-        tradingDeskService.save(tradingDesk);
-
-        return ResponseEntity.ok("Trading desk updated successfully");
+        return ResponseEntity.ok(
+                "Trading desk updated successfully");
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable UUID id) {
-
-        if (!tradingDeskService.existsById(id)) {
-            throw new EntityNotFoundException(
-                    "Trading desk not found: " + id);
-        }
+    public ResponseEntity<String> delete(
+            @PathVariable UUID id) {
 
         tradingDeskService.deleteById(id);
 
-        return ResponseEntity.ok("Trading desk deleted successfully");
+        return ResponseEntity.ok(
+                "Trading desk deleted successfully");
     }
 }

@@ -8,6 +8,7 @@ import com.ytfa.fmrcap.repository.TradingDeskRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +28,7 @@ public class TradingDeskService {
         this.riskAnalystRepository = riskAnalystRepository;
     }
 
+    @Transactional
     public TradingDesk save(TradingDesk tradingDesk) {
         return tradingDeskRepository.save(tradingDesk);
     }
@@ -43,6 +45,20 @@ public class TradingDeskService {
         return tradingDeskRepository.existsById(id);
     }
 
+    @Transactional
+    public TradingDesk update(UUID id, TradingDesk tradingDesk) {
+
+        if (!tradingDeskRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Trading desk not found: " + id);
+        }
+
+        tradingDesk.setId(id);
+
+        return tradingDeskRepository.save(tradingDesk);
+    }
+
+    @Transactional
     public void deleteById(UUID id) {
 
         if (!tradingDeskRepository.existsById(id)) {
