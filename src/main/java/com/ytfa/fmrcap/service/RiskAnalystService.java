@@ -14,6 +14,7 @@ import com.ytfa.fmrcap.repository.TradingDeskRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,61 @@ public class RiskAnalystService {
         this.riskAssessmentRepository = riskAssessmentRepository;
     }
 
+    @Transactional
     public RiskAnalyst save(RiskAnalyst riskAnalyst) {
+
+        resolveRelationships(riskAnalyst);
+
+        return riskAnalystRepository.save(riskAnalyst);
+    }
+
+    public List<RiskAnalyst> findAll() {
+        return riskAnalystRepository.findAll();
+    }
+
+    public Optional<RiskAnalyst> findById(UUID id) {
+        return riskAnalystRepository.findById(id);
+    }
+
+    public boolean existsById(UUID id) {
+        return riskAnalystRepository.existsById(id);
+    }
+
+    @Transactional
+    public RiskAnalyst update(UUID id, RiskAnalyst riskAnalyst) {
+
+        if (!riskAnalystRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Risk analyst not found: " + id);
+        }
+
+        riskAnalyst.setId(id);
+
+        resolveRelationships(riskAnalyst);
+
+        return riskAnalystRepository.save(riskAnalyst);
+    }
+
+    @Transactional
+    public void deleteById(UUID id) {
+
+        if (!riskAnalystRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "Risk analyst not found: " + id);
+        }
+
+        if (riskAssessmentRepository.existsByRiskAnalyst_Id(id)) {
+
+            throw new ResourceConflictException(
+                    "Cannot delete this risk analyst because "
+                    + "existing risk assessments are assigned to this analyst. "
+                    + "Reassign or remove those assessments first.");
+        }
+
+        riskAnalystRepository.deleteById(id);
+    }
+
+    private void resolveRelationships(RiskAnalyst riskAnalyst) {
 
         // Resolve the assigned trading desk.
         if (riskAnalyst.getTradingDesk() != null) {
@@ -82,37 +137,5 @@ public class RiskAnalystService {
         }
 
         riskAnalyst.setAssetClasses(managedAssetClasses);
-
-        return riskAnalystRepository.save(riskAnalyst);
-    }
-
-    public List<RiskAnalyst> findAll() {
-        return riskAnalystRepository.findAll();
-    }
-
-    public Optional<RiskAnalyst> findById(UUID id) {
-        return riskAnalystRepository.findById(id);
-    }
-
-    public boolean existsById(UUID id) {
-        return riskAnalystRepository.existsById(id);
-    }
-
-    public void deleteById(UUID id) {
-
-        if (!riskAnalystRepository.existsById(id)) {
-            throw new EntityNotFoundException(
-                    "Risk analyst not found: " + id);
-        }
-
-        if (riskAssessmentRepository.existsByRiskAnalyst_Id(id)) {
-
-            throw new ResourceConflictException(
-                    "Cannot delete this risk analyst because "
-                    + "existing risk assessments are assigned to this analyst. "
-                    + "Reassign or remove those assessments first.");
-        }
-
-        riskAnalystRepository.deleteById(id);
     }
 }

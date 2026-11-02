@@ -2,8 +2,10 @@ package com.ytfa.fmrcap.controller;
 
 import com.ytfa.fmrcap.entity.RiskAnalyst;
 import com.ytfa.fmrcap.service.RiskAnalystService;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +27,8 @@ public class RiskAnalystController {
     public ResponseEntity<RiskAnalyst> save(
             @Valid @RequestBody RiskAnalyst riskAnalyst) {
 
-        RiskAnalyst savedAnalyst = riskAnalystService.save(riskAnalyst);
+        RiskAnalyst savedAnalyst =
+                riskAnalystService.save(riskAnalyst);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(savedAnalyst);
@@ -33,11 +36,14 @@ public class RiskAnalystController {
 
     @GetMapping("/all")
     public ResponseEntity<List<RiskAnalyst>> findAll() {
-        return ResponseEntity.ok(riskAnalystService.findAll());
+
+        return ResponseEntity.ok(
+                riskAnalystService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RiskAnalyst> findById(@PathVariable UUID id) {
+    public ResponseEntity<RiskAnalyst> findById(
+            @PathVariable UUID id) {
 
         RiskAnalyst analyst = riskAnalystService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -51,29 +57,19 @@ public class RiskAnalystController {
             @PathVariable UUID id,
             @Valid @RequestBody RiskAnalyst riskAnalyst) {
 
-        if (!riskAnalystService.existsById(id)) {
-            throw new EntityNotFoundException(
-                    "Risk analyst not found: " + id);
-        }
-
-        riskAnalyst.setId(id);
-
         RiskAnalyst updatedAnalyst =
-                riskAnalystService.save(riskAnalyst);
+                riskAnalystService.update(id, riskAnalyst);
 
         return ResponseEntity.ok(updatedAnalyst);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable UUID id) {
-
-        if (!riskAnalystService.existsById(id)) {
-            throw new EntityNotFoundException(
-                    "Risk analyst not found: " + id);
-        }
+    public ResponseEntity<String> delete(
+            @PathVariable UUID id) {
 
         riskAnalystService.deleteById(id);
 
-        return ResponseEntity.ok("Risk analyst deleted successfully");
+        return ResponseEntity.ok(
+                "Risk analyst deleted successfully");
     }
 }
